@@ -16,6 +16,15 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Course> courses = Course.sampleCourses;
   List<TrendingItem> trendingItems = TrendingItem.sampleItems.take(2).toList();
   
+  @override
+  void initState() {
+    super.initState();
+    // Reset user's favorite courses to empty list when app starts
+    User.currentUser = User.currentUser.copyWith(
+      favoriteCoursesIds: [],
+    );
+  }
+  
   void _toggleFavorite(Course course) {
     setState(() {
       List<String> updatedFavorites = List.from(User.currentUser.favoriteCoursesIds);
@@ -28,6 +37,22 @@ class _HomeScreenState extends State<HomeScreen> {
         favoriteCoursesIds: updatedFavorites,
       );
     });
+  }
+
+  // Get complimentary courses (free courses)
+  List<Course> get complimentaryCourses {
+    return courses.where((course) => 
+      course.price == '\$0' || 
+      course.price.contains('Free') || 
+      course.funding == 'Complimentary').toList();
+  }
+
+  // Get popular courses (excluding complimentary courses)
+  List<Course> get popularCourses {
+    return courses.where((course) => 
+      !(course.price == '\$0' || 
+      course.price.contains('Free') || 
+      course.funding == 'Complimentary')).toList();
   }
 
   @override
@@ -110,35 +135,60 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 24),
           
           // Popular Courses
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Popular Courses',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              Icon(
-                Icons.favorite,
-                color: Colors.pink[400],
-                size: 24,
-              ),
-            ],
+          Text(
+            'Popular Courses',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 16),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: 2,
-            separatorBuilder: (context, index) => const SizedBox(height: 12),
-            itemBuilder: (context, index) => CourseCard(
-              course: courses[index],
-              onFavoriteToggle: _toggleFavorite,
+          
+          SizedBox(
+            height: 230, // Fixed height for the horizontal scroll view
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: popularCourses.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 12),
+              itemBuilder: (context, index) => SizedBox(
+                width: MediaQuery.of(context).size.width * 0.85, // Control the width of each card
+                child: CourseCard(
+                  course: popularCourses[index],
+                  onFavoriteToggle: _toggleFavorite,
+                ),
+              ),
             ),
           ),
           
           const SizedBox(height: 24),
+          
+          // Complimentary Courses
+          if (complimentaryCourses.isNotEmpty) ...[
+            Text(
+              'Complimentary Courses',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            
+            SizedBox(
+              height: 230, // Fixed height for the horizontal scroll view
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: complimentaryCourses.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 12),
+                itemBuilder: (context, index) => SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.85, // Control the width of each card
+                  child: CourseCard(
+                    course: complimentaryCourses[index],
+                    onFavoriteToggle: _toggleFavorite,
+                  ),
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 24),
+          ],
           
           // What's Trending
           Text(

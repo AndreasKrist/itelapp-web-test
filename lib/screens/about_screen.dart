@@ -21,28 +21,45 @@ class AboutScreen extends StatelessWidget {
           // Logo or image
           Center(
             child: Container(
-              width: 120,
-              height: 120,
+              width: 160,
+              height: 160,
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.blue[700],
+                color: const Color.fromARGB(255, 255, 255, 255),
                 shape: BoxShape.circle,
-              ),
-              child: const Center(
-                child: Text(
-                  'ITEL',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
                   ),
-                ),
+                ],
+              ),
+              child: Image.asset(
+                'assets/images/itel.png',
+                fit: BoxFit.contain,
               ),
             ),
           ),
           const SizedBox(height: 24),
           
-          // Our Mission
-          _buildSectionTitle('Our Mission'),
+          // Vision section
+          _buildVisionMissionSection(
+            title: 'Vision',
+            content: 'A World Class Life-Long Learning Center',
+            bgColor: Colors.blue[50]!,
+            textColor: Colors.blue[800]!,
+          ),
+          const SizedBox(height: 24),
+          
+          // Mission section with icons
+          _buildSectionTitle('Mission'),
+          const SizedBox(height: 16),
+          _buildMissionGrid(),
+          const SizedBox(height: 24),
+          
+          // Our Story
+          _buildSectionTitle('Our Story'),
           const SizedBox(height: 12),
           Text(
             'ITEL was founded in 2001 by Franky Espehana in response to the increasing demand for IT training services. With its early origins as a New Horizons franchise, the company has moved forward to rebrand to the present day ITEL.\n\nHeadquartered in Singapore, ITEL is an authorized Accredited Training Organization (ATO) and Continuing Education Training (CET), service provider of industry training courses in the area of IT and Business. Training sessions are conducted on premise within its training centre, externally within client site and remotely.',
@@ -51,30 +68,184 @@ class AboutScreen extends StatelessWidget {
               height: 1.5,
             ),
           ),
+          const SizedBox(height: 16),
+          Text(
+            'In collaboration with Singapore Government affiliated organizations such as SkillsFuture Singapore (SSG), ITEL has been entrusted with funded and subsidized training courses. We also collaborate closely with internationally recognised industry vendors like EC-Council, CompTIA, Microsoft, and PeopleCert. This provides you and your team with the skills and knowledge necessary to excel in the rapidly evolving IT landscape.',
+            style: TextStyle(
+              color: Colors.grey[800],
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'ITEL also offers a customised and or curated approach towards its corporate and group courses. Curriculum and delivery can be crafted to suit each group\'s needs.\n\nAt ITEL, we build on past insights to continuously enhance our training products and services, ensuring they evolve to address current needs and anticipate future advancements.',
+            style: TextStyle(
+              color: Colors.grey[800],
+              height: 1.5,
+            ),
+          ),
           const SizedBox(height: 24),
           
-          // Why Choose Us
-          _buildSectionTitle('Why Choose Us'),
-          const SizedBox(height: 12),
-          _buildFeatureItem(
-            icon: Icons.verified_user,
-            title: 'Certified Trainers',
-            description: 'All our trainers are certified professionals with extensive industry experience.',
+          // Key Statistics
+          _buildSectionTitle('You Can Trust Us'),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.blue[50],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStatistic(
+                  icon: Icons.people,
+                  number: '214,842+',
+                  label: 'Graduates',
+                ),
+                _buildStatistic(
+                  icon: Icons.book,
+                  number: '250+',
+                  label: 'No. of Courses',
+                ),
+                _buildStatistic(
+                  icon: Icons.calendar_today,
+                  number: '23',
+                  label: 'Years in Business',
+                ),
+              ],
+            ),
           ),
-          _buildFeatureItem(
-            icon: Icons.book,
-            title: 'Comprehensive Curriculum',
-            description: 'Our courses are designed to provide in-depth knowledge and practical skills.',
-          ),
-          _buildFeatureItem(
-            icon: Icons.business_center,
-            title: 'Industry Recognition',
-            description: 'ITEL certifications are recognized by leading companies worldwide.',
-          ),
-          _buildFeatureItem(
-            icon: Icons.support_agent,
-            title: '24/7 Support',
-            description: 'Our dedicated support team is always available to assist you.',
+          
+          const SizedBox(height: 24),
+          
+          // Partners section
+          _buildSectionTitle('Partners'),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 30,
+                          color: Colors.transparent,
+                          child: Center(
+                            child: Text('Microsoft',
+                              style: TextStyle(
+                                color: Colors.grey[800],
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Microsoft Partner',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 30,
+                          color: Colors.red,
+                          child: const Center(
+                            child: Text('CompTIA',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: Colors.purple[100],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('ITIL',
+                                style: TextStyle(
+                                  color: Colors.purple[800],
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text('Accredited',
+                                style: TextStyle(
+                                  color: Colors.purple[800],
+                                  fontSize: 8,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.orange, width: 2),
+                            color: Colors.white,
+                          ),
+                          child: Center(
+                            child: Text('EC-Council',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.orange[800],
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 24),
           
@@ -99,93 +270,25 @@ class AboutScreen extends StatelessWidget {
                 _buildContactItem(
                   icon: Icons.email,
                   title: 'Email',
-                  detail: 'itel.sg@gmail.com',
+                  detail: 'enquiry@itel.com.sg',
                 ),
                 const Divider(),
                 _buildContactItem(
                   icon: Icons.phone,
                   title: 'Phone',
-                  detail: '021-7777777',
+                  detail: '6822 8282',
                 ),
                 const Divider(),
                 _buildContactItem(
                   icon: Icons.location_on,
                   title: 'Address',
-                  detail: '123 Education St, Learning City, Singapore',
+                  detail: '1 Maritime Square, HarbourFront Centre #10-24/25 (Lobby B) Singapore 099253',
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          
-          // Social Media
-          _buildSectionTitle('Connect With Us'),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildSocialButton(Icons.facebook, Colors.blue[800]!),
-              _buildSocialButton(Icons.language, Colors.green[700]!),
-              _buildSocialButton(Icons.chat, Colors.orange[700]!),
-              _buildSocialButton(Icons.link, Colors.blue[400]!),
-            ],
-          ),
-          
-          const SizedBox(height: 32),
-          
-          // Newsletter subscription
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.blue[50],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue[100]!),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Stay Updated',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue[800],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Subscribe to our newsletter to get the latest news and updates about our courses and events.',
-                  style: TextStyle(
-                    color: Colors.blue[800],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Enter your email',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[700],
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text('Subscribe'),
-                  ),
+                const Divider(),
+                _buildContactItem(
+                  icon: Icons.language,
+                  title: 'Website',
+                  detail: 'https://itel.com.sg/',
                 ),
               ],
             ),
@@ -206,6 +309,134 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 8),
         ],
       ),
+    );
+  }
+
+  Widget _buildVisionMissionSection({
+    required String title,
+    required String content,
+    required Color bgColor,
+    required Color textColor,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            content,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              color: textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMissionGrid() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildMissionItem(
+            icon: Icons.workspace_premium,
+            title: 'Provide World Recognized Certifications',
+          ),
+        ),
+        Expanded(
+          child: _buildMissionItem(
+            icon: Icons.people,
+            title: 'Develop Human Capital for In-Demand Skills',
+          ),
+        ),
+        Expanded(
+          child: _buildMissionItem(
+            icon: Icons.public,
+            title: 'Contribute to Society Through Quality Education',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMissionItem({required IconData icon, required String title}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            size: 40,
+            color: Colors.blue[600],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Colors.blue[800],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildStatistic({required IconData icon, required String number, required String label}) {
+    return Column(
+      children: [
+        Icon(
+          icon,
+          color: Colors.blue[500],
+          size: 30,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          number,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey[800],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.blue[500],
+          ),
+        ),
+      ],
     );
   }
   
@@ -283,41 +514,27 @@ class AboutScreen extends StatelessWidget {
             size: 24,
           ),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                  ),
                 ),
-              ),
-              Text(
-                detail,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
+                Text(
+                  detail,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
-      ),
-    );
-  }
-  
-  Widget _buildSocialButton(IconData icon, Color color) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        icon,
-        color: Colors.white,
       ),
     );
   }

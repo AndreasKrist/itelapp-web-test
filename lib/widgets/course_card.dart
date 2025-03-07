@@ -47,27 +47,13 @@ class CourseCard extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Title with limited width to make room for favorite icon
                           Expanded(
                             child: Text(
                               course.title,
                               style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
-                          if (onFavoriteToggle != null)
-                            IconButton(
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                              icon: Icon(
-                                isFavorite ? Icons.favorite : Icons.favorite_border,
-                                color: isFavorite ? Colors.pink : Colors.grey,
-                                size: 20,
-                              ),
-                              onPressed: () {
-                                if (onFavoriteToggle != null) {
-                                  onFavoriteToggle!(course);
-                                }
-                              },
-                            ),
                         ],
                       ),
                       Text(
@@ -97,6 +83,23 @@ class CourseCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                // Properly aligned favorite button
+                if (onFavoriteToggle != null)
+                  GestureDetector(
+                    onTap: () {
+                      if (onFavoriteToggle != null) {
+                        onFavoriteToggle!(course);
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite ? Colors.pink : Colors.grey,
+                        size: 24,
+                      ),
+                    ),
+                  ),
                 Text(
                   course.price,
                   style: TextStyle(
@@ -161,7 +164,7 @@ class CourseCard extends StatelessWidget {
                   ),
                 ),
               ),
-                          // Consultant is only shown for enrolled courses in the profile screen, not here
+            // Consultant is only shown for enrolled courses in the profile screen, not here
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
