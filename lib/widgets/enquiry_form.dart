@@ -59,19 +59,77 @@ class _EnquiryFormState extends State<EnquiryForm> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      // Here you would implement the actual form submission logic
-      // This could be an API call to your WordPress backend or other service
+      // In a real application, this would send data to your backend
+      // For example:
+      // 1. Create a map with all form values
+      final Map<String, dynamic> formData = {
+        'name': _nameController.text,
+        'email': _emailController.text,
+        'phone': _phoneController.text,
+        'occupation': _occupationController.text,
+        'experience': _experienceController.text,
+        'course': widget.course.title,
+        'courseCode': widget.course.courseCode,
+        'enquiryType': _getEnquiryTypes(),
+        'consultant': _consultantController.text,
+        'heardFrom': _getHeardFromSources(),
+        'remarks': _remarksController.text,
+        'joinMailingList': _joinMailingList,
+        'submittedAt': DateTime.now().toIso8601String(),
+      };
       
-      // Mock submission for now
+      // 2. This data would be sent to your backend API
+      // Example: apiService.submitEnquiry(formData);
+      
+      // 3. Log the data for demonstration (remove in production)
+      print('Form submitted with data:');
+      formData.forEach((key, value) {
+        print('$key: $value');
+      });
+      
+      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Enquiry submitted successfully!'),
+        SnackBar(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Enquiry submitted successfully!'),
+              Text(
+                'A confirmation email will be sent to ${_emailController.text}',
+                style: TextStyle(fontSize: 12),
+              ),
+            ],
+          ),
           backgroundColor: Colors.green,
+          duration: Duration(seconds: 5),
         ),
       );
       
       widget.onSubmit();
     }
+  }
+
+  // Helper methods to get the selected enquiry types and heard-from sources
+  String _getEnquiryTypes() {
+    List<String> types = [];
+    if (_coursePrice) types.add('Course Price');
+    if (_courseSchedule) types.add('Course Date & Schedule');
+    if (_chatWithSomeone) types.add('Chat with someone');
+    if (_others) types.add('Others: ${_detailsController.text}');
+    return types.join(', ');
+  }
+
+  String _getHeardFromSources() {
+    List<String> sources = [];
+    if (_internetSearch) sources.add('Internet Search');
+    if (_emailMarketing) sources.add('ITEL EDM/Email');
+    if (_itelStaff) sources.add('ITEL Staff');
+    if (_linkedin) sources.add('LinkedIn');
+    if (_facebook) sources.add('Facebook');
+    if (_instagram) sources.add('Instagram');
+    if (_otherSource) sources.add('Others');
+    return sources.join(', ');
   }
 
   @override
@@ -136,48 +194,31 @@ class _EnquiryFormState extends State<EnquiryForm> {
                     ),
                     const SizedBox(height: 16),
                     
-                    // Email and Phone in a row
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildFieldLabel('Email Address', true),
-                              _buildTextField(
-                                controller: _emailController,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your email';
-                                  } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                                    return 'Please enter a valid email';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildFieldLabel('Contact Number', true),
-                              _buildTextField(
-                                controller: _phoneController,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your phone number';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                    // Email Address
+                    _buildFieldLabel('Email Address', true),
+                    _buildTextField(
+                      controller: _emailController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Contact Number
+                    _buildFieldLabel('Contact Number', true),
+                    _buildTextField(
+                      controller: _phoneController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your phone number';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 16),
                     

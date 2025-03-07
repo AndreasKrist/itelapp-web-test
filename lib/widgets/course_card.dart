@@ -16,6 +16,8 @@ class CourseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isFavorite = User.currentUser.favoriteCoursesIds.contains(course.id);
+    final userTier = User.currentUser.tier;
+    final isDiscountEligible = course.isDiscountEligible() && userTier == MembershipTier.pro;
 
     return GestureDetector(
       onTap: () {
@@ -100,12 +102,47 @@ class CourseCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                Text(
-                  course.price,
-                  style: TextStyle(
-                    color: Colors.blue[600],
-                    fontWeight: FontWeight.bold,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    // Show original price with strikethrough for PRO members
+                    if (isDiscountEligible)
+                      Text(
+                        course.price,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.normal,
+                          decoration: TextDecoration.lineThrough,
+                          fontSize: 12,
+                        ),
+                      ),
+                    Text(
+                      isDiscountEligible
+                          ? course.getDiscountedPrice(userTier)
+                          : course.price,
+                      style: TextStyle(
+                        color: isDiscountEligible ? Colors.green[600] : Colors.blue[600],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (isDiscountEligible)
+                      Container(
+                        margin: const EdgeInsets.only(top: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[700],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'PRO SAVE 25%',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),

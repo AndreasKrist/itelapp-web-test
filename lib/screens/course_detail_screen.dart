@@ -1017,62 +1017,149 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
     );
   }
   
-  Widget _buildFeeTable() {
-    final feeStructure = widget.course.feeStructure;
-    if (feeStructure == null) return Container();
-    
-    return Table(
-      border: TableBorder.all(
-        color: Colors.grey[300]!,
-        width: 1,
-      ),
-      columnWidths: const {
-        0: FlexColumnWidth(2.5),
-        1: FlexColumnWidth(1),
-        2: FlexColumnWidth(1),
-        3: FlexColumnWidth(1),
-      },
-      children: [
-        // Table header
-        TableRow(
+Widget _buildFeeTable() {
+  final feeStructure = widget.course.feeStructure;
+  if (feeStructure == null) return Container();
+  
+  final userTier = User.currentUser.tier;
+  final isProMember = userTier == MembershipTier.pro;
+  final isDiscountEligible = widget.course.isDiscountEligible();
+  
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      if (isProMember && isDiscountEligible)
+        Container(
+          padding: const EdgeInsets.all(10),
+          margin: const EdgeInsets.only(bottom: 10),
           decoration: BoxDecoration(
-            color: Colors.blue[700],
+            color: Colors.blue[50],
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.blue[200]!),
           ),
-          children: [
-            _buildTableHeaderCell('Criteria', isFirstColumn: true),
-            _buildTableHeaderCell('Individual'),
-            _buildTableHeaderCell('Company Sponsored (Non-SME)'),
-            _buildTableHeaderCell('Company Sponsored (SME)'),
-          ],
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.blue[700],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  'PRO',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'As a PRO member, you receive a 25% discount on this course!',
+                  style: TextStyle(
+                    color: Colors.blue[800],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        // Full course fee row
-        if (feeStructure.containsKey('Full Course Fee'))
+      Table(
+        border: TableBorder.all(
+          color: Colors.grey[300]!,
+          width: 1,
+        ),
+        columnWidths: const {
+          0: FlexColumnWidth(2.5),
+          1: FlexColumnWidth(1),
+          2: FlexColumnWidth(1),
+          3: FlexColumnWidth(1),
+        },
+        children: [
+          // Table header
           TableRow(
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: Colors.blue[700],
             ),
             children: [
-              _buildTableCell('Full Course Fee', isHeader: true),
-              _buildTableCell(''),
-              _buildTableCell(''),
-              _buildTableCell(feeStructure['Full Course Fee']?['Price'] ?? ''),
+              _buildTableHeaderCell('Criteria', isFirstColumn: true),
+              _buildTableHeaderCell('Individual'),
+              _buildTableHeaderCell('Company Sponsored (Non-SME)'),
+              _buildTableHeaderCell('Company Sponsored (SME)'),
             ],
           ),
-        // Other fee rows
-        ...feeStructure.entries.where((entry) => entry.key != 'Full Course Fee').map((entry) {
-          return TableRow(
-            children: [
-              _buildTableCell(entry.key, isHeader: true),
-              _buildTableCell(entry.value['Individual'] ?? ''),
-              _buildTableCell(entry.value['Company Sponsored (Non-SME)'] ?? ''),
-              _buildTableCell(entry.value['Company Sponsored (SME)'] ?? ''),
-            ],
-          );
-        }).toList(),
-      ],
-    );
-  }
+          // Full course fee row
+          if (feeStructure.containsKey('Full Course Fee'))
+            TableRow(
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+              ),
+              children: [
+                _buildTableCell('Full Course Fee', isHeader: true),
+                _buildTableCell(''),
+                _buildTableCell(''),
+                _buildTableCell(
+                  isProMember && isDiscountEligible
+                    ? '${feeStructure['Full Course Fee']?['Price'] ?? ''}\n(PRO: ${widget.course.getDiscountedPrice(userTier)})'
+                    : feeStructure['Full Course Fee']?['Price'] ?? ''
+                ),
+              ],
+            ),
+          // Other fee rows with PRO discount applied if eligible
+          ...feeStructure.entries.where((entry) => entry.key != 'Full Course Fee').map((entry) {
+            return TableRow(
+              children: [
+                _buildTableCell(entry.key, isHeader: true),
+                _buildTableCell(
+                  isProMember && isDiscountEligible && entry.value['Individual'] != null
+                    ? '${entry.value['Individual']}\n(PRO: ${_getDiscountedValue(entry.value['Individual'])})'
+                    : entry.value['Individual'] ?? ''
+                ),
+                _buildTableCell(
+                  isProMember && isDiscountEligible && entry.value['Company Sponsored (Non-SME)'] != null
+                    ? '${entry.value['Company Sponsored (Non-SME)']}\n(PRO: ${_getDiscountedValue(entry.value['Company Sponsored (Non-SME)'])})'
+                    : entry.value['Company Sponsored (Non-SME)'] ?? ''
+                ),
+                _buildTableCell(
+                  isProMember && isDiscountEligible && entry.value['Company Sponsored (SME)'] != null
+                    ? '${entry.value['Company Sponsored (SME)']}\n(PRO: ${_getDiscountedValue(entry.value['Company Sponsored (SME)'])})'
+                    : entry.value['Company Sponsored (SME)'] ?? ''
+                ),
+              ],
+            );
+          }).toList(),
+        ],
+      ),
+    ],
+  );
+}
+
+// Helper method to calculate discounted price for the fee table
+String _getDiscountedValue(String? priceString) {
+  if (priceString == null || priceString.isEmpty) return '';
   
+  // Extract numeric value
+  final valueString = priceString.replaceAll(RegExp(r'[^\d.]'), '');
+  if (valueString.isEmpty) return priceString;
+  
+  try {
+    double value = double.parse(valueString);
+    double discountedValue = value * 0.75; // 25% discount
+    
+    // Format with same currency symbol
+    if (priceString.contains('\$')) {
+      return '\$${discountedValue.toStringAsFixed(2)}';
+    } else {
+      return '${discountedValue.toStringAsFixed(2)}';
+    }
+  } catch (e) {
+    return priceString;
+  }
+}
+
   Widget _buildTableHeaderCell(String text, {bool isFirstColumn = false}) {
     return Container(
       padding: const EdgeInsets.all(10),

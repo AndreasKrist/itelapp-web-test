@@ -1,3 +1,4 @@
+import 'user.dart'; // 
 class Course {
   final String id;
   final String courseCode; // Added course code
@@ -93,6 +94,41 @@ class Course {
     );
   }
 
+// Get discounted price for PRO members
+  String getDiscountedPrice(MembershipTier userTier) {
+    if (userTier != MembershipTier.pro) {
+      return price;
+    }
+    
+    // Extract numeric value from price string
+    final priceString = price.replaceAll(RegExp(r'[^\d.]'), '');
+    if (priceString.isEmpty) {
+      return price; // Return original if we can't parse it
+    }
+    
+    try {
+      double originalPrice = double.parse(priceString);
+      double discountedPrice = originalPrice * 0.75; // 25% discount
+      
+      // Format price with same currency symbol
+      if (price.contains('\$')) {
+        return '\$${discountedPrice.toStringAsFixed(2)}';
+      } else {
+        return '${discountedPrice.toStringAsFixed(2)}';
+      }
+    } catch (e) {
+      return price; // Return original price if parsing fails
+    }
+  }
+  
+  // Check if course is eligible for discount
+  bool isDiscountEligible() {
+    // Free courses and courses not eligible for funding don't get additional discounts
+    return !(price == '\$0' || 
+            price.contains('Free') || 
+            funding == 'Complimentary');
+  }
+  
 static List<Course> sampleCourses = [
     Course(
       id: '1',
