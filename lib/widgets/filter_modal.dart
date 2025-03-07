@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'category_chip.dart';
 
 class FilterModal extends StatefulWidget {
-  final String activeFilter;
-  final Function(String) onFilterSelected;
+  final Map<String, String> activeFilters;
+  final Function(Map<String, String>) onFiltersChanged;
   final Function() onApply;
   final Function() onCancel;
 
   const FilterModal({
     super.key,
-    required this.activeFilter,
-    required this.onFilterSelected,
+    required this.activeFilters,
+    required this.onFiltersChanged,
     required this.onApply,
     required this.onCancel,
   });
@@ -20,12 +20,25 @@ class FilterModal extends StatefulWidget {
 }
 
 class _FilterModalState extends State<FilterModal> {
-  late String _currentFilter;
+  late Map<String, String> _currentFilters;
 
   @override
   void initState() {
     super.initState();
-    _currentFilter = widget.activeFilter;
+    _currentFilters = Map.from(widget.activeFilters);
+  }
+
+  void _updateFilter(String category, String value) {
+    setState(() {
+      if (_currentFilters[category] == value) {
+        // If selecting the same value, reset to 'all'
+        _currentFilters[category] = 'all';
+      } else {
+        // Otherwise, set the new value
+        _currentFilters[category] = value;
+      }
+      widget.onFiltersChanged(_currentFilters);
+    });
   }
 
   @override
@@ -75,33 +88,23 @@ class _FilterModalState extends State<FilterModal> {
             children: [
               CategoryChip(
                 label: 'All',
-                isActive: _currentFilter == 'all',
-                onTap: () {
-                  setState(() {
-                    _currentFilter = 'all';
-                  });
-                  widget.onFilterSelected('all');
-                },
+                isActive: _currentFilters['funding'] == 'all',
+                onTap: () => _updateFilter('funding', 'all'),
               ),
               CategoryChip(
                 label: 'Funding Available',
-                isActive: _currentFilter == 'funding',
-                onTap: () {
-                  setState(() {
-                    _currentFilter = 'funding';
-                  });
-                  widget.onFilterSelected('funding');
-                },
+                isActive: _currentFilters['funding'] == 'available',
+                onTap: () => _updateFilter('funding', 'available'),
               ),
               CategoryChip(
                 label: 'No Funding',
-                isActive: _currentFilter == 'noFunding',
-                onTap: () {
-                  setState(() {
-                    _currentFilter = 'noFunding';
-                  });
-                  widget.onFilterSelected('noFunding');
-                },
+                isActive: _currentFilters['funding'] == 'none',
+                onTap: () => _updateFilter('funding', 'none'),
+              ),
+              CategoryChip(
+                label: 'Complimentary (Free)',
+                isActive: _currentFilters['funding'] == 'free',
+                onTap: () => _updateFilter('funding', 'free'),
               ),
             ],
           ),
@@ -123,33 +126,18 @@ class _FilterModalState extends State<FilterModal> {
             children: [
               CategoryChip(
                 label: 'All',
-                isActive: _currentFilter == 'all',
-                onTap: () {
-                  setState(() {
-                    _currentFilter = 'all';
-                  });
-                  widget.onFilterSelected('all');
-                },
+                isActive: _currentFilters['duration'] == 'all',
+                onTap: () => _updateFilter('duration', 'all'),
               ),
               CategoryChip(
-                label: 'Short (< 8 weeks)',
-                isActive: _currentFilter == 'short',
-                onTap: () {
-                  setState(() {
-                    _currentFilter = 'short';
-                  });
-                  widget.onFilterSelected('short');
-                },
+                label: 'Short (< 2 days)',
+                isActive: _currentFilters['duration'] == 'short',
+                onTap: () => _updateFilter('duration', 'short'),
               ),
               CategoryChip(
-                label: 'Long (8+ weeks)',
-                isActive: _currentFilter == 'long',
-                onTap: () {
-                  setState(() {
-                    _currentFilter = 'long';
-                  });
-                  widget.onFilterSelected('long');
-                },
+                label: 'Long (2+ days)',
+                isActive: _currentFilters['duration'] == 'long',
+                onTap: () => _updateFilter('duration', 'long'),
               ),
             ],
           ),
@@ -171,101 +159,38 @@ class _FilterModalState extends State<FilterModal> {
             children: [
               CategoryChip(
                 label: 'All',
-                isActive: _currentFilter == 'all',
-                onTap: () {
-                  setState(() {
-                    _currentFilter = 'all';
-                  });
-                  widget.onFilterSelected('all');
-                },
+                isActive: _currentFilters['certType'] == 'all',
+                onTap: () => _updateFilter('certType', 'all'),
+              ),
+              CategoryChip(
+                label: 'ITIL',
+                isActive: _currentFilters['certType'] == 'ITIL',
+                onTap: () => _updateFilter('certType', 'ITIL'),
               ),
               CategoryChip(
                 label: 'CCNA',
-                isActive: _currentFilter == 'ccna',
-                onTap: () {
-                  setState(() {
-                    _currentFilter = 'ccna';
-                  });
-                  widget.onFilterSelected('ccna');
-                },
+                isActive: _currentFilters['certType'] == 'CCNA',
+                onTap: () => _updateFilter('certType', 'CCNA'),
+              ),
+              CategoryChip(
+                label: 'COMPTIA',
+                isActive: _currentFilters['certType'] == 'COMPTIA',
+                onTap: () => _updateFilter('certType', 'COMPTIA'),
               ),
               CategoryChip(
                 label: 'CEH',
-                isActive: _currentFilter == 'ceh',
-                onTap: () {
-                  setState(() {
-                    _currentFilter = 'ceh';
-                  });
-                  widget.onFilterSelected('ceh');
-                },
+                isActive: _currentFilters['certType'] == 'CEH',
+                onTap: () => _updateFilter('certType', 'CEH'),
               ),
               CategoryChip(
-                label: 'CCNP',
-                isActive: _currentFilter == 'ccnp',
-                onTap: () {
-                  setState(() {
-                    _currentFilter = 'ccnp';
-                  });
-                  widget.onFilterSelected('ccnp');
-                },
+                label: 'CCISO',
+                isActive: _currentFilters['certType'] == 'CCISO',
+                onTap: () => _updateFilter('certType', 'CCISO'),
               ),
               CategoryChip(
-                label: 'SCTP',
-                isActive: _currentFilter == 'sctp',
-                onTap: () {
-                  setState(() {
-                    _currentFilter = 'sctp';
-                  });
-                  widget.onFilterSelected('sctp');
-                },
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // Sort By section
-          Text(
-            'Sort By',
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              CategoryChip(
-                label: 'Price: Low to High',
-                isActive: _currentFilter == 'priceLow',
-                onTap: () {
-                  setState(() {
-                    _currentFilter = 'priceLow';
-                  });
-                  widget.onFilterSelected('priceLow');
-                },
-              ),
-              CategoryChip(
-                label: 'Price: High to Low',
-                isActive: _currentFilter == 'priceHigh',
-                onTap: () {
-                  setState(() {
-                    _currentFilter = 'priceHigh';
-                  });
-                  widget.onFilterSelected('priceHigh');
-                },
-              ),
-              CategoryChip(
-                label: 'Duration',
-                isActive: _currentFilter == 'duration',
-                onTap: () {
-                  setState(() {
-                    _currentFilter = 'duration';
-                  });
-                  widget.onFilterSelected('duration');
-                },
+                label: 'CISM',
+                isActive: _currentFilters['certType'] == 'CISM',
+                onTap: () => _updateFilter('certType', 'CISM'),
               ),
             ],
           ),

@@ -161,17 +161,7 @@ class CourseCard extends StatelessWidget {
                   ),
                 ),
               ),
-            if (course.consultant != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  'Consultant: ${course.consultant}',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
-                ),
-              ),
+                          // Consultant is only shown for enrolled courses in the profile screen, not here
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [

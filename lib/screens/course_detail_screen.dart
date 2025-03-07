@@ -17,11 +17,19 @@ class CourseDetailScreen extends StatefulWidget {
 class _CourseDetailScreenState extends State<CourseDetailScreen> {
   late bool isFavorite;
   bool _showEnquiryForm = false;
+  Map<String, bool> _expandedSections = {};
 
   @override
   void initState() {
     super.initState();
     isFavorite = User.currentUser.favoriteCoursesIds.contains(widget.course.id);
+    
+    // Initialize all outline sections as collapsed
+    if (widget.course.outline != null) {
+      widget.course.outline!.keys.forEach((key) {
+        _expandedSections[key] = false;
+      });
+    }
   }
 
   void _toggleFavorite() {
@@ -36,6 +44,12 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         favoriteCoursesIds: updatedFavorites,
       );
       isFavorite = !isFavorite;
+    });
+  }
+
+  void _toggleSection(String sectionKey) {
+    setState(() {
+      _expandedSections[sectionKey] = !(_expandedSections[sectionKey] ?? false);
     });
   }
 
@@ -68,6 +82,28 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              widget.course.courseCode,
+                              style: TextStyle(
+                                color: Colors.blue[700],
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
                       Text(
                         widget.course.title,
                         style: const TextStyle(
@@ -129,19 +165,6 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          Icon(
-                            Icons.access_time,
-                            color: Colors.white70,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            widget.course.duration,
-                            style: const TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
                         ],
                       ),
                     ],
@@ -154,105 +177,294 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Price and Funding
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.blue[50],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Course Fee',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                Text(
-                                  widget.course.price,
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue[700],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (widget.course.funding != null)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: widget.course.funding!.contains('Eligible')
-                                      ? Colors.green[100]
-                                      : Colors.red[50],
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  widget.course.funding!,
-                                  style: TextStyle(
-                                    color: widget.course.funding!.contains('Eligible')
-                                        ? Colors.green[700]
-                                        : Colors.red[700],
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 24),
-                      
                       // Course Details
                       _buildSectionTitle('Course Details'),
                       const SizedBox(height: 12),
                       
-                      if (widget.course.startDate != null)
-                        _buildDetailRow('Start Date', widget.course.startDate!),
-                      
-                      if (widget.course.deliveryMethods != null)
-                        _buildDetailRow(
-                          'Delivery Methods',
-                          widget.course.deliveryMethods!.join(', '),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
+                        child: Column(
+                          children: [
+                            _buildDetailRow('Duration', widget.course.duration),
+                            _buildDetailRow('Next Available Course', widget.course.nextAvailableDate ?? 'Contact us for availability'),
+                            _buildDetailRow(
+                              'Delivery Mode',
+                              widget.course.deliveryMethods?.map((mode) {
+                                if (mode == 'OLL') return 'Online Live Learning (OLL)';
+                                if (mode == 'ILT') return 'Instructor-led Training (ILT)';
+                                return mode;
+                              }).join(', ') ?? 'Not specified',
+                            ),
+                            _buildDetailRow('Fees (before funding)', widget.course.price),
+                            if (widget.course.funding != null)
+                              _buildDetailRow('Funding Status', widget.course.funding!),
+                          ],
+                        ),
+                      ),
+const SizedBox(height: 24),
                       
-                      if (widget.course.consultant != null)
-                        _buildDetailRow('Consultant', widget.course.consultant!),
-                      
-                      const SizedBox(height: 24),
+                      // Course Description
+                      if (widget.course.description != null) ...[
+                        _buildSectionTitle('Course Description'),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Text(widget.course.description!),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
                       
                       // Course Outline
                       if (widget.course.outline != null) ...[
                         _buildSectionTitle('Course Outline'),
                         const SizedBox(height: 12),
-                        Text(widget.course.outline!),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: widget.course.outline!.length,
+                            separatorBuilder: (context, index) => Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              String sectionKey = widget.course.outline!.keys.elementAt(index);
+                              List<String> sectionItems = widget.course.outline![sectionKey] ?? [];
+                              bool isExpanded = _expandedSections[sectionKey] ?? false;
+                              
+                              return Column(
+                                children: [
+                                  InkWell(
+                                    onTap: () => _toggleSection(sectionKey),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              sectionKey,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          Icon(
+                                            isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  if (isExpanded)
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 16,
+                                        right: 16,
+                                        bottom: 16,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: sectionItems.map((item) {
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 4),
+                                            child: Row(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text('• ', style: TextStyle(color: Colors.blue[700])),
+                                                Expanded(child: Text(item)),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
                         const SizedBox(height: 24),
                       ],
                       
-                      // Included in this course
-                      _buildSectionTitle('Included in this Course'),
-                      const SizedBox(height: 12),
-                      _buildIncludedItem('Access to online resources'),
-                      _buildIncludedItem('Certificate upon completion'),
-                      _buildIncludedItem('Course materials and handouts'),
-                      _buildIncludedItem('Support from industry experts'),
-                      _buildIncludedItem('Practical hands-on sessions'),
+                      // Course Fee Structure
+                      if (widget.course.feeStructure != null) ...[
+                        _buildSectionTitle('Course Fee Structure'),
+                        const SizedBox(height: 12),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              _buildFeeTable(),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
                       
-                      const SizedBox(height: 24),
+                      // Prerequisites
+                      if (widget.course.prerequisites != null) ...[
+                        _buildSectionTitle('Prerequisites'),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: widget.course.prerequisites!.map((prerequisite) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green[600],
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(prerequisite),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+// Who Should Attend
+                      if (widget.course.whoShouldAttend != null) ...[
+                        _buildSectionTitle('Who Should Attend'),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Text(widget.course.whoShouldAttend!),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
                       
-                      // Requirements
-                      _buildSectionTitle('Requirements'),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Basic knowledge of IT concepts is required. Participants should have access to a computer with internet connection for practical sessions.',
-                      ),
+                      // Important Notes
+                      if (widget.course.importantNotes != null) ...[
+                        _buildSectionTitle('Important Notes'),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50],
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.blue[200]!),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                color: Colors.blue[700],
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  widget.course.importantNotes!,
+                                  style: TextStyle(color: Colors.blue[700]),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                      
+                      // // Included in this course
+                      // _buildSectionTitle('Included in this Course'),
+                      // const SizedBox(height: 12),
+                      // Container(
+                      //   padding: const EdgeInsets.all(16),
+                      //   decoration: BoxDecoration(
+                      //     color: Colors.white,
+                      //     borderRadius: BorderRadius.circular(12),
+                      //     boxShadow: [
+                      //       BoxShadow(
+                      //         color: Colors.black.withOpacity(0.05),
+                      //         blurRadius: 10,
+                      //         offset: const Offset(0, 2),
+                      //       ),
+                      //     ],
+                      //   ),
+                      //   child: Column(
+                      //     crossAxisAlignment: CrossAxisAlignment.start,
+                      //     children: [
+                      //       _buildIncludedItem('Access to online resources'),
+                      //       _buildIncludedItem('Certificate upon completion'),
+                      //       _buildIncludedItem('Course materials and handouts'),
+                      //       _buildIncludedItem('Support from industry experts'),
+                      //       _buildIncludedItem('Practical hands-on sessions'),
+                      //     ],
+                      //   ),
+                      // ),
                       
                       const SizedBox(height: 80), // Space for the bottom button
                     ],
@@ -345,8 +557,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 ),
               ),
             ),
-          
-          // Bottom button
+// Bottom button - Enquire Now
           Positioned(
             bottom: 0,
             left: 0,
@@ -446,6 +657,91 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
             child: Text(text),
           ),
         ],
+      ),
+    );
+  }
+  
+  Widget _buildFeeTable() {
+    final feeStructure = widget.course.feeStructure;
+    if (feeStructure == null) return Container();
+    
+    return Table(
+      border: TableBorder.all(
+        color: Colors.grey[300]!,
+        width: 1,
+      ),
+      columnWidths: const {
+        0: FlexColumnWidth(2.5),
+        1: FlexColumnWidth(1),
+        2: FlexColumnWidth(1),
+        3: FlexColumnWidth(1),
+      },
+      children: [
+        // Table header
+        TableRow(
+          decoration: BoxDecoration(
+            color: Colors.blue[700],
+          ),
+          children: [
+            _buildTableHeaderCell('Criteria', isFirstColumn: true),
+            _buildTableHeaderCell('Individual'),
+            _buildTableHeaderCell('Company Sponsored (Non-SME)'),
+            _buildTableHeaderCell('Company Sponsored (SME)'),
+          ],
+        ),
+        // Full course fee row
+        if (feeStructure.containsKey('Full Course Fee'))
+          TableRow(
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+            ),
+            children: [
+              _buildTableCell('Full Course Fee', isHeader: true),
+              _buildTableCell(''),
+              _buildTableCell(''),
+              _buildTableCell(feeStructure['Full Course Fee']?['Price'] ?? ''),
+            ],
+          ),
+        // Other fee rows
+        ...feeStructure.entries.where((entry) => entry.key != 'Full Course Fee').map((entry) {
+          return TableRow(
+            children: [
+              _buildTableCell(entry.key, isHeader: true),
+              _buildTableCell(entry.value['Individual'] ?? ''),
+              _buildTableCell(entry.value['Company Sponsored (Non-SME)'] ?? ''),
+              _buildTableCell(entry.value['Company Sponsored (SME)'] ?? ''),
+            ],
+          );
+        }).toList(),
+      ],
+    );
+  }
+  
+  Widget _buildTableHeaderCell(String text, {bool isFirstColumn = false}) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+        ),
+        textAlign: isFirstColumn ? TextAlign.left : TextAlign.center,
+      ),
+    );
+  }
+  
+  Widget _buildTableCell(String text, {bool isHeader = false}) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
+          fontSize: 12,
+        ),
+        textAlign: isHeader ? TextAlign.left : TextAlign.center,
       ),
     );
   }
