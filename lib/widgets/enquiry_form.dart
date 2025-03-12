@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/course.dart';
+import '../services/form_submission_service.dart';
 
 class EnquiryForm extends StatefulWidget {
   final Course course;
@@ -43,6 +44,8 @@ class _EnquiryFormState extends State<EnquiryForm> {
 
   bool _consentToPrivacyPolicy = false;
   bool _joinMailingList = true;
+  bool _isSubmitting = false;
+
 
   @override
   void dispose() {
@@ -57,58 +60,67 @@ class _EnquiryFormState extends State<EnquiryForm> {
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // In a real application, this would send data to your backend
-      // For example:
-      // 1. Create a map with all form values
-      final Map<String, dynamic> formData = {
-        'name': _nameController.text,
-        'email': _emailController.text,
-        'phone': _phoneController.text,
-        'occupation': _occupationController.text,
-        'experience': _experienceController.text,
-        'course': widget.course.title,
-        'courseCode': widget.course.courseCode,
-        'enquiryType': _getEnquiryTypes(),
-        'consultant': _consultantController.text,
-        'heardFrom': _getHeardFromSources(),
-        'remarks': _remarksController.text,
-        'joinMailingList': _joinMailingList,
-        'submittedAt': DateTime.now().toIso8601String(),
-      };
-      
-      // 2. This data would be sent to your backend API
-      // Example: apiService.submitEnquiry(formData);
-      
-      // 3. Log the data for demonstration (remove in production)
-      print('Form submitted with data:');
-      formData.forEach((key, value) {
-        print('$key: $value');
-      });
-      
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Enquiry submitted successfully!'),
-              Text(
-                'A confirmation email will be sent to ${_emailController.text}',
-                style: TextStyle(fontSize: 12),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 5),
+  void _submitForm() async {
+  if (_formKey.currentState!.validate()) {
+    // Show loading indicator
+    setState(() {
+      _isSubmitting = true;
+    });
+    
+    // Create a map with all form values
+    final Map<String, dynamic> formData = {
+      'name': _nameController.text,
+      'email': _emailController.text,
+      'phone': _phoneController.text,
+      'occupation': _occupationController.text,
+      'experience': _experienceController.text,
+      'course': widget.course.title,
+      'courseCode': widget.course.courseCode,
+      'enquiryType': _getEnquiryTypes(),
+      'consultant': _consultantController.text,
+      'heardFrom': _getHeardFromSources(),
+      'remarks': _remarksController.text,
+      'joinMailingList': _joinMailingList,
+      'consentToPrivacyPolicy': _consentToPrivacyPolicy,
+    };
+    
+    // Submit the form data to Google Sheets
+    final result = await FormSubmissionService.submitEnquiry(formData);
+    
+    // Hide loading indicator
+    setState(() {
+      _isSubmitting = false;
+    });
+    
+    // Show success or error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(result['success'] 
+                ? 'Enquiry submitted successfully!' 
+                : 'Failed to submit enquiry'),
+            Text(
+              result['success']
+                ? 'A confirmation email will be sent to ${_emailController.text}'
+                : result['message'],
+              style: TextStyle(fontSize: 12),
+            ),
+          ],
         ),
-      );
-      
+        backgroundColor: result['success'] ? Colors.green : Colors.red,
+        duration: Duration(seconds: 5),
+      ),
+    );
+    
+    // Only close the form if submission was successful
+    if (result['success']) {
       widget.onSubmit();
     }
   }
+}
 
   // Helper methods to get the selected enquiry types and heard-from sources
   String _getEnquiryTypes() {
@@ -389,7 +401,16 @@ class _EnquiryFormState extends State<EnquiryForm> {
                           ),
                           disabledBackgroundColor: Colors.grey[300],
                         ),
-                        child: const Text('Submit'),
+                        child: _isSubmitting
+                          ? SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 3,
+                              ),
+                            )
+                          : const Text('Submit'),
                       ),
                     ),
                   ],

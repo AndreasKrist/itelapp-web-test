@@ -52,12 +52,12 @@ class User {
 
   static User currentUser = User(
     id: '1',
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '(555) 123-4567',
-    company: 'Tech Solutions Inc.',
+    name: 'Andreas Kristianto',
+    email: 'andreaskrist2004@gmail.com',
+    phone: '+62 82111508130',
+    company: 'Lilo Store LTD',
     tier: MembershipTier.pro,
-    membershipExpiryDate: 'February 28, 2026',
+    membershipExpiryDate: 'March 7, 2027',
     favoriteCoursesIds: ['1', '3'],
   );
 }
