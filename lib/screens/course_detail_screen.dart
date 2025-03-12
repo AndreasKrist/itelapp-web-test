@@ -894,6 +894,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
             ),
           
           // Bottom button - Enquire Now
+          if (!_showEnquiryForm)
           Positioned(
             bottom: 0,
             left: 0,
