@@ -20,26 +20,6 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   bool _showEnquiryForm = false;
   Map<String, bool> _expandedSections = {};
   
-  // For FAQ Section
-  final List<Map<String, String>> faqs = [
-    {
-      'question': 'Are there any prerequisites for this course?',
-      'answer': 'Prerequisites vary by course. Please check the prerequisites section for specific requirements.'
-    },
-    {
-      'question': 'Is the certification included in the course fee?',
-      'answer': 'The course fee includes training and materials. Certification exam fees may be separate depending on the course.'
-    },
-    {
-      'question': 'Can I get a refund if I\'m unable to attend?',
-      'answer': 'Refund policies vary. Please contact our support team at least 7 days before the course start date for refund options.'
-    },
-    {
-      'question': 'How long will I have access to the course materials?',
-      'answer': 'You\'ll have access to digital course materials for 6 months after the course completion date.'
-    },
-  ];
-  
   // For Related Courses Section
   late List<Course> relatedCourses;
 
@@ -81,12 +61,6 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   void _toggleSection(String sectionKey) {
     setState(() {
       _expandedSections[sectionKey] = !(_expandedSections[sectionKey] ?? false);
-    });
-  }
-  
-  void _toggleFaq(int index) {
-    setState(() {
-      _expandedSections['faq_$index'] = !(_expandedSections['faq_$index'] ?? false);
     });
   }
 
@@ -275,35 +249,6 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                       ),
                       const SizedBox(height: 24),
                       
-                      // Learning Outcomes
-                      _buildSectionTitle('What You Will Learn'),
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildLearningOutcome('Design and implement effective security protocols'),
-                            _buildLearningOutcome('Identify and mitigate security vulnerabilities'),
-                            _buildLearningOutcome('Develop strategies for network protection'),
-                            _buildLearningOutcome('Apply industry best practices for security management'),
-                            _buildLearningOutcome('Prepare for industry certification exams'),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      
                       // Course Description
                       if (widget.course.description != null) ...[
                         _buildSectionTitle('Course Description'),
@@ -413,78 +358,6 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                         const SizedBox(height: 24),
                       ],
                       
-                      // Instructor Information
-                      _buildSectionTitle('Instructor'),
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                color: Colors.blue[100],
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'JS',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue[700],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'John Smith',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Senior Cybersecurity Consultant',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'John is a certified security professional with over 15 years of experience in network security and cybersecurity consulting. He has trained more than 1,000 students in various security certifications.',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey[700],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      
                       // Course Fee Structure
                       if (widget.course.feeStructure != null) ...[
                         _buildSectionTitle('Course Fee Structure'),
@@ -581,72 +454,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                         const SizedBox(height: 24),
                       ],
                       
-                      // Course Materials
-                      _buildSectionTitle('Course Materials'),
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            _buildIncludedItem('Comprehensive digital course handbook'),
-                            _buildIncludedItem('Hands-on practice labs access'),
-                            _buildIncludedItem('6 months access to learning platform'),
-                            _buildIncludedItem('Certificate of completion'),
-                            _buildIncludedItem('Exam preparation materials'),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      
-                      // Important Notes
+                      // Important Notes - Updated to use white background
                       if (widget.course.importantNotes != null) ...[
                         _buildSectionTitle('Important Notes'),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[50],
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.blue[200]!),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(
-                                Icons.info_outline,
-                                color: Colors.blue[700],
-                                size: 20,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  widget.course.importantNotes!,
-                                  style: TextStyle(
-                                    color: Colors.blue[700],
-                                    height: 1.5,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                      ],
-                      
-                      // Certification Details
-                      if (widget.course.certType != null) ...[
-                        _buildSectionTitle('Certification Details'),
                         const SizedBox(height: 12),
                         Container(
                           padding: const EdgeInsets.all(16),
@@ -661,89 +471,16 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                               ),
                             ],
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildDetailRow('Certification', widget.course.certType!),
-                              _buildDetailRow('Validity Period', '3 years'),
-                              _buildDetailRow('Exam Required', 'Yes'),
-                              _buildDetailRow('Exam Format', 'Multiple choice and practical'),
-                              _buildDetailRow('Passing Score', '70%'),
-                              _buildDetailRow('Globally Recognized', 'Yes'),
-                            ],
+                          child: Text(
+                            widget.course.importantNotes!,
+                            style: TextStyle(
+                              height: 1.5,
+                              color: Colors.grey[800],
+                            ),
                           ),
                         ),
                         const SizedBox(height: 24),
                       ],
-                      
-                      // FAQ Section
-                      _buildSectionTitle('Frequently Asked Questions'),
-                      const SizedBox(height: 12),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: faqs.length,
-                          separatorBuilder: (context, index) => Divider(height: 1),
-                          itemBuilder: (context, index) {
-                            bool isExpanded = _expandedSections['faq_$index'] ?? false;
-                            
-                            return Column(
-                              children: [
-                                InkWell(
-                                  onTap: () => _toggleFaq(index),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            faqs[index]['question']!,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Icon(
-                                          isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                if (isExpanded)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 16,
-                                      right: 16,
-                                      bottom: 16,
-                                    ),
-                                    child: Text(
-                                      faqs[index]['answer']!,
-                                      style: TextStyle(
-                                        color: Colors.grey[700],
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 24),
                       
                       // Related Courses
                       if (relatedCourses.isNotEmpty) ...[
@@ -973,45 +710,6 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildLearningOutcome(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            Icons.check_circle,
-            color: Colors.green[600],
-            size: 20,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(text),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildIncludedItem(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Icon(
-            Icons.check_circle,
-            color: Colors.green[600],
-            size: 20,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(text),
           ),
         ],
       ),
