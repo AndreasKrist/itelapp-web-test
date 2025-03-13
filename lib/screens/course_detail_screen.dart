@@ -18,7 +18,7 @@ class CourseDetailScreen extends StatefulWidget {
 class _CourseDetailScreenState extends State<CourseDetailScreen> {
   late bool isFavorite;
   bool _showEnquiryForm = false;
-  Map<String, bool> _expandedSections = {};
+  final Map<String, bool> _expandedSections = {};
   
   // For Related Courses Section
   late List<Course> relatedCourses;
@@ -30,9 +30,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
     
     // Initialize all outline sections as collapsed
     if (widget.course.outline != null) {
-      widget.course.outline!.keys.forEach((key) {
+      for (var key in widget.course.outline!.keys) {
         _expandedSections[key] = false;
-      });
+      }
     }
     
     // Get related courses (same category or certification type)
@@ -829,7 +829,7 @@ Widget _buildFeeTable() {
                 ),
               ],
             );
-          }).toList(),
+          }),
         ],
       ),
     ],
@@ -852,7 +852,7 @@ String _getDiscountedValue(String? priceString) {
     if (priceString.contains('\$')) {
       return '\$${discountedValue.toStringAsFixed(2)}';
     } else {
-      return '${discountedValue.toStringAsFixed(2)}';
+      return discountedValue.toStringAsFixed(2);
     }
   } catch (e) {
     return priceString;

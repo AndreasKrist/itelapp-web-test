@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+import 'firebase_options.dart'; // You'll need to create this file with the Firebase CLI
 import 'screens/home_screen.dart';
 import 'screens/courses_screen.dart';
 import 'screens/trending_screen.dart';
 import 'screens/about_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/auth/register_screen.dart';
+import 'screens/splash_screen.dart';
+import 'providers/auth_provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
   runApp(const MyApp());
 }
 
@@ -14,15 +28,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ITEL App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.grey[100],
-        fontFamily: 'Poppins',
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: MaterialApp(
+        title: 'ITEL App',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          scaffoldBackgroundColor: Colors.grey[100],
+          fontFamily: 'Poppins',
+        ),
+        home: const SplashScreen(), // Start with splash screen
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterScreen(),
+          '/home': (context) => const AppMockup(),
+        },
+        debugShowCheckedModeBanner: false,
       ),
-      home: const AppMockup(),
-      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -47,6 +71,24 @@ class _AppMockupState extends State<AppMockup> {
 
   @override
   Widget build(BuildContext context) {
+    // Check authentication status
+    final authProvider = Provider.of<AuthProvider>(context);
+    
+    // If not logged in and not loading, redirect to login
+    if (!authProvider.isLoggedIn && !authProvider.isLoading) {
+      // Use a post-frame callback to avoid build-during-build errors
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/login');
+      });
+      
+      // Return a loading indicator while transitioning
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    
     return Scaffold(
       body: SafeArea(
         child: Column(

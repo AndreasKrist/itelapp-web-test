@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/course.dart';
 import '../models/user.dart';
 import '../screens/course_detail_screen.dart';
+import '../providers/auth_provider.dart';
+import '../screens/admin/admin_dashboard.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -21,14 +24,107 @@ class _ProfileScreenState extends State<ProfileScreen> {
       } else {
         updatedFavorites.add(course.id);
       }
+      
+      // Update favorites in auth provider
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      authProvider.updateFavorites(updatedFavorites);
+      
+      // For immediate UI update, also update the current user model
       User.currentUser = User.currentUser.copyWith(
         favoriteCoursesIds: updatedFavorites,
       );
     });
   }
 
+  void _showUpgradeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Upgrade to PRO'),
+        content: const Text(
+          'Upgrade to PRO membership to unlock exclusive benefits:\n\n'
+          '• 25% discount on all courses\n'
+          '• Priority access to new courses\n'
+          '• Exclusive webinars and events\n'
+          '• Direct access to consultants\n'
+          '• Career counseling sessions',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Maybe Later'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _upgradeToProMembership();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue[600],
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Upgrade Now'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _upgradeToProMembership() async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+    
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.updateUserTier(
+        User.currentUser.id, 
+        MembershipTier.pro,
+      );
+      
+      if (mounted) {
+        // Close loading dialog
+        Navigator.pop(context);
+        
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Successfully upgraded to PRO membership!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      // Close loading dialog
+      if (mounted) Navigator.pop(context);
+      
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to upgrade: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _signOut() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    await authProvider.signOut();
+    
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final isAdmin = authProvider.isAdmin;
+    
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,7 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      User.currentUser.name.split(' ').map((e) => e[0]).join(),
+                      User.currentUser.name.split(' ').map((e) => e.isNotEmpty ? e[0] : '').join(),
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -101,6 +197,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                           ],
+                          if (isAdmin) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.red[400],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Text(
+                                'ADMIN',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ],
@@ -109,6 +226,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
+          
+          // Admin Dashboard button (if admin)
+          if (isAdmin)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AdminDashboard(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.admin_panel_settings),
+                label: const Text('Admin Dashboard'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[600],
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 48),
+                ),
+              ),
+            ),
           
           // Tab selector
           Container(
@@ -194,7 +334,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Personal Information',
                   style: TextStyle(
                     fontSize: 16,
@@ -213,7 +353,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 24),
           
           // Course History
-          Text(
+          const Text(
             'Course History',
             style: TextStyle(
               fontSize: 18,

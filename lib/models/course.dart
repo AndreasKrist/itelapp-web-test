@@ -114,7 +114,7 @@ class Course {
       if (price.contains('\$')) {
         return '\$${discountedPrice.toStringAsFixed(2)}';
       } else {
-        return '${discountedPrice.toStringAsFixed(2)}';
+        return discountedPrice.toStringAsFixed(2);
       }
     } catch (e) {
       return price; // Return original price if parsing fails
